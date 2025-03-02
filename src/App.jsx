@@ -1,6 +1,6 @@
 import {BrowserRouter, Navigate, Route, Routes} from 'react-router-dom';
 import './App.css'
-import {Login} from "./pages/login/login.jsx";
+import Login from "./pages/login/login.jsx";
 import {useAuth} from "./context/authContext.jsx";
 
 // Protected route component that checks auth status
