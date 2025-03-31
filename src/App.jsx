@@ -3,6 +3,7 @@ import './App.css'
 
 import {useAuth} from "./context/authContext.jsx";
 import {Login} from "./pages/login/Login.jsx";
+import Dashboard from "./pages/dashboard/Dashboard.jsx";
 
 // Protected route component that checks auth status
 const ProtectedRoute = ({ children }) => {
@@ -24,8 +25,13 @@ function App() {
     return (
 
             <Routes>
-                <Route path="/" element={<ProtectedRoute><h1>Dashboard</h1></ProtectedRoute>}/>
+                <Route path="/" element={
+                    <ProtectedRoute>
+                        <Dashboard/>
+                    </ProtectedRoute>
+                    }/>
                 <Route path="/login" element={<Login />} />
+                <Route path=" /dashboard" element={<Dashboard />} />
             </Routes>
     )
 }
