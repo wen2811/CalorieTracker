@@ -1,0 +1,12 @@
+.daily-controls {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.icon {
+    width: 1rem;
+    height: 1rem;
+    margin-right: 0.5rem;
+}
+
