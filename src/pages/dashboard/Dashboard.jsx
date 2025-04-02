@@ -1,17 +1,36 @@
-import React from "react";
+import React, {useState} from "react";
 import './Dashboard.css'
 import {DailyControls} from "../../components/dailyControls/DailyControls.jsx";
 import {MacroSummary} from "../../components/macroSummary/MacroSummary.jsx";
 import {FoodEntryList} from "../../components/foodEntryList/FoodEntryList.jsx";
-
+import {FoodEntryForm} from "../../components/foodEntryForm/FoodEntryForm.jsx";
 
 const Dashboard = () => {
-    const dailyMacros = {
-        totalCalories: 1800,
-        totalProtein: 120,
-        totalCarbs: 200,
-        totalFat: 70
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [entries, setEntries] = useState([]);
+
+    const handleAddEntry = (name, quantity, unit, macros) => {
+        const entry = {
+            id: `entry-${Date.now()}`,
+            name,
+            quantity,
+            unit,
+            date: new Date().toISOString().split("T")[0],
+            ...macros,
+        };
+
+        setEntries((prev) => [...prev, entry]);
     };
+
+    const dailyMacros = entries.reduce(
+        (acc, entry) => ({
+            totalCalories: acc.totalCalories + entry.calories,
+            totalProtein: acc.totalProtein + entry.protein,
+            totalCarbs: acc.totalCarbs + entry.carbs,
+            totalFat: acc.totalFat + entry.fat,
+        }),
+        { totalCalories: 0, totalProtein: 0, totalCarbs: 0, totalFat: 0 }
+    );
 
     return (
         <div className="dashboard-page">
@@ -27,28 +46,21 @@ const Dashboard = () => {
             <MacroSummary dailyMacros={dailyMacros} />
 
             <FoodEntryList
-                entries={[
-                    {
-                        id: "test-1",
-                        name: "Kipfilet",
-                        quantity: 150,
-                        unit: "g",
-                        calories: 300,
-                        protein: 33,
-                        carbs: 0,
-                        fat: 7,
-                        date: new Date().toISOString().split("T")[0]
-                    }
-                ]}
+                entries={entries}
                 selectedDate={new Date().toISOString().split("T")[0]}
                 expandedEntry={null}
                 onExpandEntry={() => {}}
                 onEditEntry={() => {}}
                 onDeleteEntry={() => {}}
                 onAddMeal={() => {}}
-                onAddFood={() => {}}
+                onAddFood={() => setIsModalOpen(true)}
             />
 
+            <FoodEntryForm
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onAddEntry={handleAddEntry}
+            />
         </div>
     );
 };
