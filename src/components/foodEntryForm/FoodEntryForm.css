@@ -1,0 +1,21 @@
+.form-grid {
+    display: grid;
+    gap: 1rem;
+    padding: 1rem 0;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-group label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--foreground);
+}
+
+.form-group input {
+    width: 100%;
+}
