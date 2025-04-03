@@ -1,0 +1,27 @@
+.daily-summary {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+@media (min-width: 768px) {
+    .daily-summary {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+.macro-card {
+    padding: 1.5rem;
+    text-align: center;
+}
+
+.macro-value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.macro-label {
+    font-size: 0.75rem;
+    color: var(--muted-foreground);
+}
