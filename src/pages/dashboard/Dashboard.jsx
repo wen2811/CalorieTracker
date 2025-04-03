@@ -10,6 +10,7 @@ const Dashboard = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [entries, setEntries] = useState([]);
     const [editingEntry, setEditingEntry] = useState(null);
+    const [expandedEntry, setExpandedEntry] = useState(null);
 
     const handleAddEntry = (name, quantity, unit, macros) => {
         const entry = {
@@ -67,8 +68,8 @@ const Dashboard = () => {
             <FoodEntryList
                 entries={entries}
                 selectedDate={new Date().toISOString().split("T")[0]}
-                expandedEntry={null}
-                onExpandEntry={() => {}}
+                expandedEntry={expandedEntry}
+                onExpandEntry={setExpandedEntry}
                 onEditEntry={setEditingEntry}
                 onDeleteEntry={handleDeleteEntry}
                 onAddMeal={() => {}}
