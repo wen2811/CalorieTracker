@@ -4,10 +4,12 @@ import {DailyControls} from "../../components/dailyControls/DailyControls.jsx";
 import {MacroSummary} from "../../components/macroSummary/MacroSummary.jsx";
 import {FoodEntryList} from "../../components/foodEntryList/FoodEntryList.jsx";
 import {FoodEntryForm} from "../../components/foodEntryForm/FoodEntryForm.jsx";
+import {EditEntryDialog} from "../../components/editEntryDialog/EditEntryDialog.jsx";
 
 const Dashboard = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [entries, setEntries] = useState([]);
+    const [editingEntry, setEditingEntry] = useState(null);
 
     const handleAddEntry = (name, quantity, unit, macros) => {
         const entry = {
@@ -22,6 +24,17 @@ const Dashboard = () => {
         setEntries((prev) => [...prev, entry]);
     };
 
+    const handleUpdateEntry = () => {
+        if (editingEntry) {
+            setEntries((prev) =>
+                prev.map((entry) =>
+                    entry.id === editingEntry.id ? editingEntry : entry
+                )
+            );
+            setEditingEntry(null);
+        }
+    };
+
     const dailyMacros = entries.reduce(
         (acc, entry) => ({
             totalCalories: acc.totalCalories + entry.calories,
@@ -30,6 +43,7 @@ const Dashboard = () => {
             totalFat: acc.totalFat + entry.fat,
         }),
         { totalCalories: 0, totalProtein: 0, totalCarbs: 0, totalFat: 0 }
+
     );
 
     return (
@@ -50,7 +64,7 @@ const Dashboard = () => {
                 selectedDate={new Date().toISOString().split("T")[0]}
                 expandedEntry={null}
                 onExpandEntry={() => {}}
-                onEditEntry={() => {}}
+                onEditEntry={setEditingEntry}
                 onDeleteEntry={() => {}}
                 onAddMeal={() => {}}
                 onAddFood={() => setIsModalOpen(true)}
@@ -60,6 +74,14 @@ const Dashboard = () => {
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 onAddEntry={handleAddEntry}
+            />
+
+            <EditEntryDialog
+                entry={editingEntry}
+                isOpen={editingEntry !== null}
+                onClose={() => setEditingEntry(null)}
+                onChange={setEditingEntry}
+                onSave={handleUpdateEntry}
             />
         </div>
     );
