@@ -15,7 +15,7 @@ export const FoodEntryForm = ({ isOpen, onClose, onAddEntry }) => {
     const fetchNutritionData = async (name, quantity, unit) => {
         const appId = import.meta.env.VITE_EDAMAM_APP_ID;
         const appKey = import.meta.env.VITE_EDAMAM_APP_KEY;
-        const accountUser = import.meta.env.VITE_EDAMAM_ACCOUNT_USER;
+        //const accountUser = import.meta.env.VITE_EDAMAM_ACCOUNT_USER;
 
         const query = `${quantity}${unit} ${name}`;
 
@@ -29,7 +29,7 @@ export const FoodEntryForm = ({ isOpen, onClose, onAddEntry }) => {
                     },
                     headers: {
                         'Accept': "application/json",
-                        'Edamam-Account-User': accountUser,
+                      //  'Edamam-Account-User': accountUser,
                     },
                 }
             );
