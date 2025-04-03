@@ -35,6 +35,11 @@ const Dashboard = () => {
         }
     };
 
+    const handleDeleteEntry = (entryId) => {
+        setEntries(entries.filter(entry => entry.id !== entryId));
+        setExpandedEntry(null);
+    };
+
     const dailyMacros = entries.reduce(
         (acc, entry) => ({
             totalCalories: acc.totalCalories + entry.calories,
@@ -65,7 +70,7 @@ const Dashboard = () => {
                 expandedEntry={null}
                 onExpandEntry={() => {}}
                 onEditEntry={setEditingEntry}
-                onDeleteEntry={() => {}}
+                onDeleteEntry={handleDeleteEntry}
                 onAddMeal={() => {}}
                 onAddFood={() => setIsModalOpen(true)}
             />
