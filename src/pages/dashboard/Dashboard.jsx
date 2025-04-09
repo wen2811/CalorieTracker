@@ -85,7 +85,7 @@ const Dashboard = () => {
                 selectedDate={selectedDate}
                 onDateChange={setSelectedDate}
                 onAddMeal={() => setIsMealModalOpen(true)}
-                onAddFood={() => setIsMealModalOpen(true)}
+                onAddFood={() => setIsModalOpen(true)}
             />
 
             <MacroSummary dailyMacros={dailyMacros} />

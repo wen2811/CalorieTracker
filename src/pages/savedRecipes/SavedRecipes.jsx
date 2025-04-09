@@ -6,6 +6,7 @@ import { Dialog, DialogContent,DialogDescription, DialogFooter, DialogHeader, Di
 import {Input} from "../../components/UI/input/Input.jsx";
 import {Card} from "../../components/UI/card/Card.jsx";
 import {useAuth} from "../../context/authContext.jsx";
+import {Label} from "../../components/UI/label/Label.jsx";
 
 
 export const SavedRecipes = ({ onAddRecipeToMeal }) => {
@@ -14,6 +15,7 @@ export const SavedRecipes = ({ onAddRecipeToMeal }) => {
     const [savedRecipes, setSavedRecipes] = useState([]);
     const [expandedRecipe, setExpandedRecipe] = useState(null);
     const [selectedRecipe, setSelectedRecipe] = useState(null);
+    const [editingRecipe, setEditingRecipe] = useState(null);
     const [servings, setServings] = useState(1);
 
     useEffect(() => {
@@ -26,14 +28,10 @@ export const SavedRecipes = ({ onAddRecipeToMeal }) => {
     }, [user]);
 
     const handleDeleteRecipe = (recipeId) => {
-        const updatedRecipes = savedRecipes.filter(recipe => recipe.id !== recipeId);
-        setSavedRecipes(updatedRecipes);
-        localStorage.setItem(`savedRecipes-${user.id}`, JSON.stringify(updatedRecipes));
-
-        toast({
-            title: "Recipe deleted",
-            description: "The recipe has been removed from your collection.",
-        });
+        const updated = savedRecipes.filter((r) => r.id !== recipeId);
+        setSavedRecipes(updated);
+        localStorage.setItem(`savedRecipes-${user.id}`, JSON.stringify(updated));
+        toast({ title: "Recipe deleted", description: "The recipe has been removed from your collection." });
     };
 
     const handleAddToMeal = (recipe) => {
@@ -43,16 +41,16 @@ export const SavedRecipes = ({ onAddRecipeToMeal }) => {
 
     const confirmAddToMeal = () => {
         if (selectedRecipe) {
-            const newSavedRecipe = {
+            const newSaved = {
                 ...selectedRecipe,
-                id: `saved-${Date.now()}`, // unieker ID
+                id: `saved-${Date.now()}`,
                 userId: user.id,
-                savedAt: new Date().toISOString()
+                savedAt: new Date().toISOString(),
             };
 
-            const updatedRecipes = [...savedRecipes, newSavedRecipe];
-            setSavedRecipes(updatedRecipes);
-            localStorage.setItem(`savedRecipes-${user.id}`, JSON.stringify(updatedRecipes));
+            const updated = [...savedRecipes, newSaved];
+            setSavedRecipes(updated);
+            localStorage.setItem(`savedRecipes-${user.id}`, JSON.stringify(updated));
 
             setSelectedRecipe(null);
             toast({
@@ -62,11 +60,18 @@ export const SavedRecipes = ({ onAddRecipeToMeal }) => {
         }
     };
 
-    const formatIngredients = (ingredients) => {
-        return ingredients.split('|').map((ingredient, index) => (
-            <li key={index} className="ingredient-item">{ingredient.trim()}</li>
-        ));
+    const confirmEditRecipe = () => {
+        if (editingRecipe) {
+            const updated = savedRecipes.map((r) => r.id === editingRecipe.id ? editingRecipe : r);
+            setSavedRecipes(updated);
+            localStorage.setItem(`savedRecipes-${user.id}`, JSON.stringify(updated));
+            setEditingRecipe(null);
+            toast({ title: "Recipe updated", description: "The recipe has been updated." });
+        }
     };
+
+    const formatIngredients = (ingredients) =>
+        ingredients.split('|').map((ing, idx) => <li key={idx} className="ingredient-item">{ing.trim()}</li>);
 
     return (
         <div className="saved-recipes">
@@ -85,13 +90,11 @@ export const SavedRecipes = ({ onAddRecipeToMeal }) => {
                                     <Button
                                         variant="ghost"
                                         size="sm"
-                                        onClick={() => setExpandedRecipe(expandedRecipe === recipe.id ? null : recipe.id)}
+                                        onClick={() =>
+                                            setExpandedRecipe(expandedRecipe === recipe.id ? null : recipe.id)
+                                        }
                                     >
-                                        {expandedRecipe === recipe.id ? (
-                                            <ChevronUp className="icon" />
-                                        ) : (
-                                            <ChevronDown className="icon" />
-                                        )}
+                                        {expandedRecipe === recipe.id ? <ChevronUp className="icon" /> : <ChevronDown className="icon" />}
                                     </Button>
                                 </div>
                                 <p className="recipe-servings">{recipe.servings}</p>
@@ -102,47 +105,27 @@ export const SavedRecipes = ({ onAddRecipeToMeal }) => {
                                             <h4>Ingredients:</h4>
                                             <ul>{formatIngredients(recipe.ingredients)}</ul>
                                         </div>
-
                                         <div className="nutrition">
                                             <h4>Nutrition (per serving):</h4>
                                             <div className="nutrition-grid">
-                                                <div className="nutrition-item">
-                                                    <span className="nutrition-label">Calories</span>
-                                                    <span className="nutrition-value">{Math.round(recipe.calories)}</span>
-                                                </div>
-                                                <div className="nutrition-item">
-                                                    <span className="nutrition-label">Protein</span>
-                                                    <span className="nutrition-value">{Math.round(recipe.protein)}g</span>
-                                                </div>
-                                                <div className="nutrition-item">
-                                                    <span className="nutrition-label">Carbs</span>
-                                                    <span className="nutrition-value">{Math.round(recipe.carbs)}g</span>
-                                                </div>
-                                                <div className="nutrition-item">
-                                                    <span className="nutrition-label">Fat</span>
-                                                    <span className="nutrition-value">{Math.round(recipe.fat)}g</span>
-                                                </div>
+                                                <div className="nutrition-item"><span className="nutrition-label">Calories</span><span className="nutrition-value">{Math.round(recipe.calories)}</span></div>
+                                                <div className="nutrition-item"><span className="nutrition-label">Protein</span><span className="nutrition-value">{Math.round(recipe.protein)}g</span></div>
+                                                <div className="nutrition-item"><span className="nutrition-label">Carbs</span><span className="nutrition-value">{Math.round(recipe.carbs)}g</span></div>
+                                                <div className="nutrition-item"><span className="nutrition-label">Fat</span><span className="nutrition-value">{Math.round(recipe.fat)}g</span></div>
                                             </div>
                                         </div>
                                     </div>
                                 )}
 
                                 <div className="recipe-footer">
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        onClick={() => handleDeleteRecipe(recipe.id)}
-                                    >
-                                        <Trash2 className="icon" />
-                                        Delete
+                                    <Button variant="ghost" size="sm" onClick={() => handleDeleteRecipe(recipe.id)}>
+                                        <Trash2 className="icon" /> Delete
                                     </Button>
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() => handleAddToMeal(recipe)}
-                                    >
-                                        <PlusCircle className="icon" />
-                                        Add to Meal
+                                    <Button variant="outline" size="sm" onClick={() => handleAddToMeal(recipe)}>
+                                        <PlusCircle className="icon" /> Add to Meal
+                                    </Button>
+                                    <Button variant="ghost" size="sm" className="edit-button" onClick={() => setEditingRecipe(recipe)}>
+                                        <Pencil className="icon" /> Edit
                                     </Button>
                                 </div>
                             </Card>
@@ -156,59 +139,64 @@ export const SavedRecipes = ({ onAddRecipeToMeal }) => {
                 </div>
             </Card>
 
+            {/* Add to Meal Dialog */}
             <Dialog open={selectedRecipe !== null} onOpenChange={(open) => !open && setSelectedRecipe(null)}>
                 <DialogContent>
                     <DialogHeader>
                         <DialogTitle>Add Recipe to Meal</DialogTitle>
-                        <DialogDescription>
-                            Specify how many servings you want to add to your daily log.
-                        </DialogDescription>
+                        <DialogDescription>Specify how many servings you want to add to your daily log.</DialogDescription>
                     </DialogHeader>
                     {selectedRecipe && (
                         <div className="servings-form">
-                            <div className="recipe-info">
-                                <h3>{selectedRecipe.title}</h3>
-                                <p>{selectedRecipe.servings}</p>
-                            </div>
+                            <div className="recipe-info"><h3>{selectedRecipe.title}</h3><p>{selectedRecipe.servings}</p></div>
                             <div className="servings-input">
                                 <label htmlFor="servings">Number of Servings</label>
-                                <Input
-                                    id="servings"
-                                    type="number"
-                                    min="0.25"
-                                    step="0.25"
-                                    value={servings}
-                                    onChange={(e) => setServings(Number(e.target.value))}
-                                />
+                                <Input id="servings" type="number" min="0.25" step="0.25" value={servings} onChange={(e) => setServings(Number(e.target.value))} />
                             </div>
                             <div className="nutrition-preview">
                                 <h4>Nutrition (for {servings} serving{servings !== 1 ? 's' : ''}):</h4>
                                 <div className="nutrition-grid">
-                                    <div className="nutrition-item">
-                                        <span className="nutrition-label">Calories</span>
-                                        <span className="nutrition-value">{Math.round(selectedRecipe.calories * servings)}</span>
-                                    </div>
-                                    <div className="nutrition-item">
-                                        <span className="nutrition-label">Protein</span>
-                                        <span className="nutrition-value">{Math.round(selectedRecipe.protein * servings)}g</span>
-                                    </div>
-                                    <div className="nutrition-item">
-                                        <span className="nutrition-label">Carbs</span>
-                                        <span className="nutrition-value">{Math.round(selectedRecipe.carbs * servings)}g</span>
-                                    </div>
-                                    <div className="nutrition-item">
-                                        <span className="nutrition-label">Fat</span>
-                                        <span className="nutrition-value">{Math.round(selectedRecipe.fat * servings)}g</span>
-                                    </div>
+                                    <div className="nutrition-item"><span className="nutrition-label">Calories</span><span className="nutrition-value">{Math.round(selectedRecipe.calories * servings)}</span></div>
+                                    <div className="nutrition-item"><span className="nutrition-label">Protein</span><span className="nutrition-value">{Math.round(selectedRecipe.protein * servings)}g</span></div>
+                                    <div className="nutrition-item"><span className="nutrition-label">Carbs</span><span className="nutrition-value">{Math.round(selectedRecipe.carbs * servings)}g</span></div>
+                                    <div className="nutrition-item"><span className="nutrition-label">Fat</span><span className="nutrition-value">{Math.round(selectedRecipe.fat * servings)}g</span></div>
                                 </div>
                             </div>
                         </div>
                     )}
                     <DialogFooter>
-                        <Button variant="outline" onClick={() => setSelectedRecipe(null)}>
-                            Cancel
-                        </Button>
+                        <Button variant="outline" onClick={() => setSelectedRecipe(null)}>Cancel</Button>
                         <Button onClick={confirmAddToMeal}>Add to Meal</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* Edit Recipe Dialog */}
+            <Dialog open={editingRecipe !== null} onOpenChange={(open) => !open && setEditingRecipe(null)}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Edit Recipe</DialogTitle>
+                        <DialogDescription>Update title, ingredients or servings below.</DialogDescription>
+                    </DialogHeader>
+                    {editingRecipe && (
+                        <div className="edit-recipe-form">
+                            <div className="form-group">
+                                <Label htmlFor="edit-title">Title</Label>
+                                <Input id="edit-title" value={editingRecipe.title} onChange={(e) => setEditingRecipe({ ...editingRecipe, title: e.target.value })} />
+                            </div>
+                            <div className="form-group">
+                                <Label htmlFor="edit-ingredients">Ingredients</Label>
+                                <textarea id="edit-ingredients" rows="4" value={editingRecipe.ingredients} onChange={(e) => setEditingRecipe({ ...editingRecipe, ingredients: e.target.value })} />
+                            </div>
+                            <div className="form-group">
+                                <Label htmlFor="edit-servings">Servings</Label>
+                                <Input id="edit-servings" type="text" value={editingRecipe.servings} onChange={(e) => setEditingRecipe({ ...editingRecipe, servings: e.target.value })} />
+                            </div>
+                        </div>
+                    )}
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setEditingRecipe(null)}>Cancel</Button>
+                        <Button onClick={confirmEditRecipe}>Save Changes</Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
