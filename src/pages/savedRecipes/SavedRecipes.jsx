@@ -7,9 +7,10 @@ import {Input} from "../../components/UI/input/Input.jsx";
 import {Card} from "../../components/UI/card/Card.jsx";
 import {useAuth} from "../../context/authContext.jsx";
 import {Label} from "../../components/UI/label/Label.jsx";
+import {deleteSavedRecipe, getSavedRecipes, inspectLocalStorage} from "../../helpers/localStorageRecipes/LocalStorageRecipes.js";
+import { ChevronUp, ChevronDown, Trash2, Pencil } from 'lucide-react';
 
-
-export const SavedRecipes = ({ onAddRecipeToMeal }) => {
+export const SavedRecipes = ({ onAddRecipeToMeal, reloadRecipes }) => {
     const { user } = useAuth();
     const { toast } = useToast();
     const [savedRecipes, setSavedRecipes] = useState([]);
@@ -17,21 +18,48 @@ export const SavedRecipes = ({ onAddRecipeToMeal }) => {
     const [selectedRecipe, setSelectedRecipe] = useState(null);
     const [editingRecipe, setEditingRecipe] = useState(null);
     const [servings, setServings] = useState(1);
+    const [refreshKey, setRefreshKey] = useState(0);
 
     useEffect(() => {
-        if (user) {
-            const stored = localStorage.getItem(`savedRecipes-${user.id}`);
-            if (stored) {
-                setSavedRecipes(JSON.parse(stored));
+        console.log("SavedRecipes component mounted");
+        console.log("Current auth user in SavedRecipes:", user);
+        inspectLocalStorage();
+    }, []);
+
+    useEffect(() => {
+        const loadSavedRecipes = () => {
+            if (user && user.id) {
+                console.log("Loading saved recipes for user:", user.id);
+                const recipes = getSavedRecipes(user.id);
+                console.log("Loaded recipes:", recipes);
+                setSavedRecipes(recipes);
+            } else {
+                console.log("No user found when loading recipes");
+                // If no user, try default user ID
+                const recipes = getSavedRecipes("1");
+                console.log("Trying default user ID (1). Loaded recipes:", recipes);
+                setSavedRecipes(recipes);
             }
-        }
-    }, [user]);
+        };
+
+        loadSavedRecipes();
+    }, [user, refreshKey]);
+
+    const handleRefresh = () => {
+        console.log("Manual refresh triggered");
+        setRefreshKey(prevKey => prevKey + 1);
+    };
 
     const handleDeleteRecipe = (recipeId) => {
-        const updated = savedRecipes.filter((r) => r.id !== recipeId);
-        setSavedRecipes(updated);
-        localStorage.setItem(`savedRecipes-${user.id}`, JSON.stringify(updated));
-        toast({ title: "Recipe deleted", description: "The recipe has been removed from your collection." });
+        const userId = user?.id || "1"; // Fallback to default user ID
+
+        deleteSavedRecipe(userId, recipeId);
+        setSavedRecipes(prev => prev.filter(recipe => recipe.id !== recipeId));
+
+        toast({
+            title: "Recipe deleted",
+            description: "The recipe has been removed from your collection.",
+        });
     };
 
     const handleAddToMeal = (recipe) => {
@@ -40,38 +68,58 @@ export const SavedRecipes = ({ onAddRecipeToMeal }) => {
     };
 
     const confirmAddToMeal = () => {
-        if (selectedRecipe) {
-            const newSaved = {
-                ...selectedRecipe,
-                id: `saved-${Date.now()}`,
-                userId: user.id,
-                savedAt: new Date().toISOString(),
-            };
+        if (selectedRecipe && onAddRecipeToMeal) {
+            onAddRecipeToMeal(selectedRecipe, servings);
 
-            const updated = [...savedRecipes, newSaved];
-            setSavedRecipes(updated);
-            localStorage.setItem(`savedRecipes-${user.id}`, JSON.stringify(updated));
+            toast({
+                title: "Recipe added to meal",
+                description: `${selectedRecipe.title} has been added to your daily log.`,
+            });
 
             setSelectedRecipe(null);
+        } else if (!onAddRecipeToMeal) {
             toast({
-                title: "Recipe added",
-                description: `${selectedRecipe.title} has been added to your saved recipes.`,
+                title: "Function not available",
+                description: "The add to meal functionality is not available in this context.",
+                variant: "destructive"
             });
+            setSelectedRecipe(null);
         }
     };
 
     const confirmEditRecipe = () => {
+        const userId = user?.id || "1";
+
         if (editingRecipe) {
-            const updated = savedRecipes.map((r) => r.id === editingRecipe.id ? editingRecipe : r);
+            let updatedRecipe = {...editingRecipe};
+            if (updatedRecipe.unit === "serving" &&
+                (updatedRecipe.calories === 0 || !updatedRecipe.calories)) {
+
+                updatedRecipe = {
+                    ...updatedRecipe,
+                    unit: "g",
+                    quantity: 100,
+                    };
+            }
+
+            const updated = savedRecipes.map((r) => r.id === updatedRecipe.id ? updatedRecipe : r);
+            localStorage.setItem(`savedRecipes-${userId}`, JSON.stringify(updated));
             setSavedRecipes(updated);
-            localStorage.setItem(`savedRecipes-${user.id}`, JSON.stringify(updated));
             setEditingRecipe(null);
+
             toast({ title: "Recipe updated", description: "The recipe has been updated." });
         }
     };
 
-    const formatIngredients = (ingredients) =>
-        ingredients.split('|').map((ing, idx) => <li key={idx} className="ingredient-item">{ing.trim()}</li>);
+    const formatIngredients = (ingredients) => {
+        if (!ingredients) return <li className="ingredient-item">No ingredients listed</li>;
+
+        return ingredients.split('|').map((ing, idx) =>
+            <li key={idx} className="ingredient-item">{ing.trim()}</li>
+        );
+    };
+
+    console.log("Rendering SavedRecipes with:", savedRecipes);
 
     return (
         <div className="saved-recipes">
@@ -81,8 +129,12 @@ export const SavedRecipes = ({ onAddRecipeToMeal }) => {
                     <p>Your collection of saved recipes</p>
                 </div>
 
+                <Button onClick={handleRefresh} variant="outline" className="w-full mb-4">
+                    Refresh Recipes
+                </Button>
+
                 <div className="recipes-list">
-                    {savedRecipes.length > 0 ? (
+                    {savedRecipes && savedRecipes.length > 0 ? (
                         savedRecipes.map((recipe) => (
                             <Card key={recipe.id} className="recipe-card">
                                 <div className="recipe-header">
@@ -97,7 +149,7 @@ export const SavedRecipes = ({ onAddRecipeToMeal }) => {
                                         {expandedRecipe === recipe.id ? <ChevronUp className="icon" /> : <ChevronDown className="icon" />}
                                     </Button>
                                 </div>
-                                <p className="recipe-servings">{recipe.servings}</p>
+                                <p className="recipe-servings">{recipe.servings} serving(s)</p>
 
                                 {expandedRecipe === recipe.id && (
                                     <div className="recipe-details">
@@ -148,7 +200,7 @@ export const SavedRecipes = ({ onAddRecipeToMeal }) => {
                     </DialogHeader>
                     {selectedRecipe && (
                         <div className="servings-form">
-                            <div className="recipe-info"><h3>{selectedRecipe.title}</h3><p>{selectedRecipe.servings}</p></div>
+                            <div className="recipe-info"><h3>{selectedRecipe.title}</h3><p>{selectedRecipe.servings} serving(s)</p></div>
                             <div className="servings-input">
                                 <label htmlFor="servings">Number of Servings</label>
                                 <Input id="servings" type="number" min="0.25" step="0.25" value={servings} onChange={(e) => setServings(Number(e.target.value))} />
