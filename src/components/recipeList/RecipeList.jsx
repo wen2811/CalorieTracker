@@ -33,7 +33,7 @@ export const RecipeList = ({ recipes, expandedRecipe, onExpandRecipe, onSaveReci
                     {expandedRecipe === recipe.id && (
                         <div className="recipe-details">
                             <div className="nutrition">
-                                <h4>Nutrition (per {recipe.servings} serving)</h4>
+                                <h4>Nutrition (per {recipe.quantity ? recipe.quantity : '100'} {recipe.unit === 'g' ? 'gram' : (recipe.unit || 'serving')})</h4>
                                 <div className="nutrition-grid">
                                     <div className="nutrition-item"><span>Calories</span> {recipe.calories}</div>
                                     <div className="nutrition-item"><span>Protein</span> {recipe.protein}g</div>

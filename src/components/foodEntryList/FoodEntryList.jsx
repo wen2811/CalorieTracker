@@ -13,7 +13,10 @@ export const FoodEntryList = ({
                                   onAddMeal,
                                   onAddFood
                               }) => {
+    console.log("All entries:", entries);
+    console.log("Selected date for filtering:", selectedDate);
     const filteredEntries = entries.filter(entry => entry.date === selectedDate);
+    console.log("Filtered entries:", filteredEntries);
 
     if (filteredEntries.length === 0) {
         return (
