@@ -1,0 +1,89 @@
+.results-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.recipe-card {
+    padding: 1.5rem;
+}
+
+.recipe-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.5rem;
+}
+
+.recipe-header h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+}
+
+.recipe-servings {
+    color: var(--muted-foreground);
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+}
+
+.recipe-details {
+    border-top: 1px solid var(--border);
+    margin-top: 1rem;
+    padding-top: 1rem;
+}
+
+.nutrition h4 {
+    font-weight: 500;
+    margin-bottom: 0.75rem;
+}
+
+.nutrition-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+}
+
+.nutrition-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    align-items: center;
+}
+
+.nutrition-label {
+    color: var(--muted-foreground);
+    font-size: 0.75rem;
+    text-transform: capitalize;
+}
+
+.nutrition-value {
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.recipe-footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+}
+
+.empty-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    color: var(--muted-foreground);
+    font-size: 0.875rem;
+    text-align: center;
+    padding: 1rem;
+}
+
+.icon {
+    width: 1rem;
+    height: 1rem;
+    margin-right: 0.5rem;
+}

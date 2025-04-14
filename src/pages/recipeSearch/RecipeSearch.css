@@ -1,0 +1,33 @@
+.recipe-search {
+    padding: 1rem;
+}
+
+.search-card {
+    padding: 1.5rem;
+}
+
+.search-header {
+    margin-bottom: 1.5rem;
+}
+
+.search-header h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.search-header p {
+    color: var(--muted-foreground);
+    font-size: 0.875rem;
+}
+
+.empty-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    color: var(--muted-foreground);
+    font-size: 0.875rem;
+}
