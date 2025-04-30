@@ -1,48 +1,59 @@
 .date-range-selector {
     display: flex;
-    flex-wrap: wrap;
     align-items: center;
-    justify-content: space-between;
     gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
 }
 
-.date-inputs {
+.date-field {
     display: flex;
-    gap: 1rem;
-}
-
-.date-input {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-}
-
-.date-input label {
-    font-size: 0.875rem;
-    color: #64748b;
-}
-
-.navigation-buttons {
-    display: flex;
+    align-items: center;
     gap: 0.5rem;
 }
 
-@media (max-width: 640px) {
+.date-field label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--foreground);
+    white-space: nowrap;
+}
+
+.date-field input {
+    min-width: 140px;
+    height: 2.5rem;
+    padding: 0 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background-color: var(--input);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.date-navigation {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+
+@media (max-width: 768px) {
     .date-range-selector {
         flex-direction: column;
-        align-items: stretch;
+        align-items: flex-start;
     }
 
-    .date-inputs {
+    .date-field {
         width: 100%;
+        justify-content: space-between;
     }
 
-    .date-input {
+    .date-field input {
         flex: 1;
     }
 
-    .navigation-buttons {
+    .date-navigation {
         width: 100%;
         justify-content: space-between;
+        margin-top: 0.5rem;
     }
 }

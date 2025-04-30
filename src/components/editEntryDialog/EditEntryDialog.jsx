@@ -2,7 +2,7 @@ import React from "react";
 import {Button} from "../UI/button/Button.jsx";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle} from "../UI/dialog/Dialog.jsx";
 import {Input} from "../UI/input/Input.jsx";
-import "./EditEntryDialog.css"
+import "./EditEntryDialog.css";
 
 export const EditEntryDialog = ({
                                     entry,
@@ -17,14 +17,14 @@ export const EditEntryDialog = ({
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>Edit Food Entry</DialogTitle>
+                    <DialogTitle>Voedingsmoment bewerken</DialogTitle>
                     <DialogDescription>
-                        Update the details of your food entry.
+                        Pas gerust iets aan — kleine tweaks, groot verschil.
                     </DialogDescription>
                 </DialogHeader>
                 <div className="edit-form">
                     <div className="form-group">
-                        <label htmlFor="edit-name">Food Name</label>
+                        <label htmlFor="edit-name">Wat heb je gegeten?</label>
                         <Input
                             id="edit-name"
                             value={entry.name}
@@ -32,7 +32,7 @@ export const EditEntryDialog = ({
                         />
                     </div>
                     <div className="form-group">
-                        <label htmlFor="edit-quantity">Quantity ({entry.unit})</label>
+                        <label htmlFor="edit-quantity">Hoeveelheid ({entry.unit})</label>
                         <Input
                             id="edit-quantity"
                             type="number"
@@ -45,9 +45,9 @@ export const EditEntryDialog = ({
                 </div>
                 <DialogFooter>
                     <Button variant="outline" onClick={onClose}>
-                        Cancel
+                        Terug
                     </Button>
-                    <Button onClick={onSave}>Save Changes</Button>
+                    <Button onClick={onSave}>Opslaan</Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>

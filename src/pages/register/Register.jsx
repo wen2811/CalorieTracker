@@ -6,7 +6,7 @@ import {useToast} from "../../components/UI/toast/Toast.jsx";
 import {Input} from "../../components/UI/input/Input.jsx";
 import {Label} from "../../components/UI/label/Label.jsx";
 import {Button} from "../../components/UI/button/Button.jsx";
-import './Register.css'
+import './Register.css';
 
 export const Register = () => {
     const [username, setUsername] = useState('');
@@ -22,17 +22,17 @@ export const Register = () => {
 
     const validateForm = () => {
         if (!username || !email || !password || !confirmPassword) {
-            setError('All fields are required');
+            setError('Alle velden zijn verplicht');
             return false;
         }
 
         if (password !== confirmPassword) {
-            setError('Passwords do not match');
+            setError('Wachtwoorden komen niet overeen');
             return false;
         }
 
         if (password.length < 6) {
-            setError('Password must be at least 6 characters');
+            setError('Wachtwoord moet minstens 6 tekens bevatten');
             return false;
         }
 
@@ -51,17 +51,17 @@ export const Register = () => {
             await register(username, email, password);
 
             toast({
-                title: 'Registration successful',
-                description: 'You can now log in with your credentials',
+                title: 'Registratie gelukt',
+                description: 'Je kunt nu inloggen met je accountgegevens',
             });
 
             navigate('/login');
         } catch (err) {
-            setError(err.message || 'Registration failed');
+            setError(err.message || 'Registratie mislukt');
 
             toast({
-                title: 'Registration failed',
-                description: err.message || 'Please try again',
+                title: 'Registratie mislukt',
+                description: err.message || 'Probeer het opnieuw',
                 variant: 'destructive',
             });
         } finally {
@@ -73,9 +73,9 @@ export const Register = () => {
         <div className="register-container">
             <Card className="register-card">
                 <div className="card-header">
-                    <h2 className="card-title">Create an Account</h2>
+                    <h2 className="card-title">Account aanmaken</h2>
                     <p className="card-description">
-                        Sign up to start tracking your nutrition and calories
+                        Begin vandaag nog met het bijhouden van je voeding en energie-inname.
                     </p>
                 </div>
 
@@ -88,7 +88,7 @@ export const Register = () => {
                         )}
 
                         <div className="form-group">
-                            <Label htmlFor="username">Username</Label>
+                            <Label htmlFor="username">Gebruikersnaam</Label>
                             <Input
                                 id="username"
                                 type="text"
@@ -99,7 +99,7 @@ export const Register = () => {
                         </div>
 
                         <div className="form-group">
-                            <Label htmlFor="email">Email</Label>
+                            <Label htmlFor="email">E-mailadres</Label>
                             <Input
                                 id="email"
                                 type="email"
@@ -110,7 +110,7 @@ export const Register = () => {
                         </div>
 
                         <div className="form-group">
-                            <Label htmlFor="password">Password</Label>
+                            <Label htmlFor="password">Wachtwoord</Label>
                             <Input
                                 id="password"
                                 type="password"
@@ -118,11 +118,11 @@ export const Register = () => {
                                 onChange={(e) => setPassword(e.target.value)}
                                 required
                             />
-                            <p className="form-hint">Must be at least 6 characters</p>
+                            <p className="form-hint">Minimaal 6 tekens</p>
                         </div>
 
                         <div className="form-group">
-                            <Label htmlFor="confirmPassword">Confirm Password</Label>
+                            <Label htmlFor="confirmPassword">Bevestig wachtwoord</Label>
                             <Input
                                 id="confirmPassword"
                                 type="password"
@@ -137,14 +137,14 @@ export const Register = () => {
                             className="register-button"
                             disabled={isSubmitting}
                         >
-                            {isSubmitting ? 'Creating Account...' : 'Create Account'}
+                            {isSubmitting ? 'Account wordt aangemaakt...' : 'Account aanmaken'}
                         </Button>
                     </form>
                 </div>
 
                 <div className="card-footer">
                     <p>
-                        Already have an account? <Link to="/login">Sign in</Link>
+                        Al een account? <Link to="/login">Inloggen</Link>
                     </p>
                 </div>
             </Card>

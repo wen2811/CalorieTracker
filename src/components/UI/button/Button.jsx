@@ -11,7 +11,7 @@ export const Button = ({
     const buttonClasses = [
         'button',
         `button-${variant}`,
-        `button-${size}`,
+        size === 'icon' ? 'button-icon' : `button-${size}`,
         className
     ].filter(Boolean).join(' ');
 

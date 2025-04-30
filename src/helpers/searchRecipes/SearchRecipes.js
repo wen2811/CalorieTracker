@@ -1,18 +1,29 @@
 import axios from "axios";
 
+/**
+ * Zoekt voedingsgegevens op via de Edamam API
+ *
+ * Deze functie probeert eerst de Nutrition API te gebruiken, en als dat geen resultaten oplevert,
+ * schakelt deze over naar de Food Database API als fallback. Voor consistente resultaten voegt
+ * deze functie automatisch "100g" toe aan zoekopdrachten zonder hoeveelheid.
+ *
+ * @param {string} query - De zoekopdracht, bijv. "appel" of "100g kipfilet"
+ * @returns {Promise<Array>} - Een array van receptobjecten met voedingswaarden
+ */
+
 export const searchRecipes = async (query) => {
     const appId = import.meta.env.VITE_EDAMAM_APP_ID;
     const appKey = import.meta.env.VITE_EDAMAM_APP_KEY;
 
     try {
-        console.log("Searching for recipe:", query);
 
+        // Voeg automatisch "100g" toe aan queries zonder getallen voor betere resultaten
         let searchQuery = query;
         if (!query.match(/\d+/)) {
             searchQuery = `100g ${query}`;
-            console.log("Adding quantity for better results:", searchQuery);
         }
 
+        // Eerste poging met Nutrition API
         const response = await axios.get(
             `https://api.edamam.com/api/nutrition-data`,
             {
@@ -25,12 +36,11 @@ export const searchRecipes = async (query) => {
         );
 
         const data = response.data;
-        console.log("API response data:", data);
 
         if (!data || data.calories === 0) {
-            console.log("No valid nutrition data found - trying food database search");
 
             try {
+                // Tweede poging met Food Database API voor betere resultaten
                 const parserResponse = await axios.get(
                     `https://api.edamam.com/api/food-database/v2/parser`,
                     {
@@ -42,7 +52,6 @@ export const searchRecipes = async (query) => {
                     }
                 );
 
-                console.log("Parser response:", parserResponse.data);
 
                 if (parserResponse.data.hints && parserResponse.data.hints.length > 0) {
                     const hint = parserResponse.data.hints[0];
@@ -60,7 +69,6 @@ export const searchRecipes = async (query) => {
                         fat: Math.round(nutrients.FAT || 0),
                     };
 
-                    console.log("Created recipe from food database:", recipe);
                     return [recipe];
                 }
             } catch (parserError) {
@@ -73,10 +81,9 @@ export const searchRecipes = async (query) => {
         const carbs = Math.round(data.totalNutrients?.CHOCDF?.quantity || 0);
         const fat = Math.round(data.totalNutrients?.FAT?.quantity || 0);
 
-        console.log("Extracted nutrition values:", { calories, protein, carbs, fat });
 
         if (query.includes('chicken') && calories === 0) {
-            console.log("Using hardcoded values for chicken");
+
             return [{
                 id: `recipe-${Date.now()}`,
                 title: query,

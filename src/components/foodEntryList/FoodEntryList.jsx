@@ -1,7 +1,7 @@
 import React from "react";
 import { Pencil, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
 import {Button} from "../UI/button/Button.jsx";
-import './FoodEntryList.css'
+import './FoodEntryList.css';
 
 export const FoodEntryList = ({
                                   entries,
@@ -13,21 +13,36 @@ export const FoodEntryList = ({
                                   onAddMeal,
                                   onAddFood
                               }) => {
-    console.log("All entries:", entries);
-    console.log("Selected date for filtering:", selectedDate);
     const filteredEntries = entries.filter(entry => entry.date === selectedDate);
-    console.log("Filtered entries:", filteredEntries);
+
+    const handleAddMealClick = (e) => {
+        e.preventDefault();
+        if (onAddMeal) onAddMeal();
+    };
+
+    const handleAddFoodClick = (e) => {
+        e.preventDefault();
+        if (onAddFood) onAddFood();
+    };
 
     if (filteredEntries.length === 0) {
         return (
             <div className="empty-state">
-                <p>No food entries for this day</p>
+                <p>Geen voedselregistraties voor deze dag</p>
                 <div className="empty-actions">
-                    <Button variant="outline" onClick={onAddMeal}>
-                        Add Meal
+                    <Button
+                        variant="default"
+                        onClick={handleAddMealClick}
+                        type="button"
+                    >
+                        Maaltijd Toevoegen
                     </Button>
-                    <Button variant="outline" onClick={onAddFood}>
-                        Add Food
+                    <Button
+                        variant="default"
+                        onClick={handleAddFoodClick}
+                        type="button"
+                    >
+                        Voedsel Toevoegen
                     </Button>
                 </div>
             </div>
@@ -35,17 +50,20 @@ export const FoodEntryList = ({
     }
 
     return (
-        <div className="entries-list">
-            {filteredEntries.map((entry) => (
-                <FoodEntryItem
-                    key={entry.id}
-                    entry={entry}
-                    isExpanded={expandedEntry === entry.id}
-                    onExpand={onExpandEntry}
-                    onEdit={onEditEntry}
-                    onDelete={onDeleteEntry}
-                />
-            ))}
+        <div>
+            <h2 className="section-title">Voedingsregistraties</h2>
+            <div className="entries-list">
+                {filteredEntries.map((entry) => (
+                    <FoodEntryItem
+                        key={entry.id}
+                        entry={entry}
+                        isExpanded={expandedEntry === entry.id}
+                        onExpand={onExpandEntry}
+                        onEdit={onEditEntry}
+                        onDelete={onDeleteEntry}
+                    />
+                ))}
+            </div>
         </div>
     );
 };
@@ -60,15 +78,19 @@ const FoodEntryItem = ({ entry, isExpanded, onExpand, onEdit, onDelete }) => {
                 >
                     <div className="entry-name">{entry.name}</div>
                     <div className="entry-info">
-                        {entry.quantity} {entry.unit} • {Math.round(entry.calories)} kcal
+                        <span>{entry.quantity} {entry.unit}</span>
+                        <span className="dot"></span>
+                        <span className="entry-calories">{Math.round(entry.calories)} kcal</span>
+                        <span className="dot"></span>
+                        <span>{entry.time || ""}</span>
                     </div>
                 </div>
                 <div className="entry-actions">
                     <Button variant="ghost" size="icon" onClick={() => onEdit(entry)}>
-                        <Pencil className="icon" />
+                        <Pencil size={16} />
                     </Button>
                     <Button variant="ghost" size="icon" onClick={() => onDelete(entry.id)}>
-                        <Trash2 className="icon" />
+                        <Trash2 size={16} />
                     </Button>
                     <Button
                         variant="ghost"
@@ -76,9 +98,9 @@ const FoodEntryItem = ({ entry, isExpanded, onExpand, onEdit, onDelete }) => {
                         onClick={() => onExpand(isExpanded ? null : entry.id)}
                     >
                         {isExpanded ? (
-                            <ChevronUp className="icon" />
+                            <ChevronUp size={16} />
                         ) : (
-                            <ChevronDown className="icon" />
+                            <ChevronDown size={16} />
                         )}
                     </Button>
                 </div>
@@ -86,15 +108,15 @@ const FoodEntryItem = ({ entry, isExpanded, onExpand, onEdit, onDelete }) => {
             {isExpanded && (
                 <div className="entry-details">
                     <div className="detail-item">
-                        <div className="detail-label">Protein</div>
+                        <div className="detail-label">Eiwitten</div>
                         <div className="detail-value">{Math.round(entry.protein)}g</div>
                     </div>
                     <div className="detail-item">
-                        <div className="detail-label">Carbs</div>
+                        <div className="detail-label">Koolhydraten</div>
                         <div className="detail-value">{Math.round(entry.carbs)}g</div>
                     </div>
                     <div className="detail-item">
-                        <div className="detail-label">Fat</div>
+                        <div className="detail-label">Vetten</div>
                         <div className="detail-value">{Math.round(entry.fat)}g</div>
                     </div>
                 </div>

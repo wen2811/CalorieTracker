@@ -12,13 +12,8 @@ export const Overview = () => {
     const oneWeekAgo = new Date(today);
     oneWeekAgo.setDate(today.getDate() - 6);
 
-    const [startDate, setStartDate] = useState(
-        oneWeekAgo.toISOString().split("T")[0]
-    );
-    const [endDate, setEndDate] = useState(
-        today.toISOString().split("T")[0]
-    );
-
+    const [startDate, setStartDate] = useState(oneWeekAgo.toISOString().split("T")[0]);
+    const [endDate, setEndDate] = useState(today.toISOString().split("T")[0]);
     const [periodEntries, setPeriodEntries] = useState([]);
     const [chartData, setChartData] = useState([]);
     const [periodStats, setPeriodStats] = useState({
@@ -54,7 +49,7 @@ export const Overview = () => {
 
     const formatDateForDisplay = (dateString) => {
         const date = new Date(dateString);
-        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        return date.toLocaleDateString("nl-NL", { month: "short", day: "numeric" });
     };
 
     useEffect(() => {
@@ -75,13 +70,12 @@ export const Overview = () => {
                     allEntries.push(...entriesForDay);
                     daysWithData.add(dateString);
 
-
                     const dayTotals = entriesForDay.reduce(
                         (acc, entry) => ({
                             calories: acc.calories + entry.calories,
                             protein: acc.protein + entry.protein,
                             carbs: acc.carbs + entry.carbs,
-                            fat: acc.fat + entry.fat,
+                            fat: acc.fat + entry.fat
                         }),
                         { calories: 0, protein: 0, carbs: 0, fat: 0 }
                     );
@@ -94,7 +88,6 @@ export const Overview = () => {
                         fat: Math.round(dayTotals.fat)
                     };
                 } else {
-                    // Include empty days in chart data for continuity
                     dailyData[dateString] = {
                         date: formatDateForDisplay(dateString),
                         calories: 0,
@@ -108,9 +101,7 @@ export const Overview = () => {
             }
 
             const sortedDates = Object.keys(dailyData).sort();
-            sortedDates.forEach(date => {
-                chartDataArray.push(dailyData[date]);
-            });
+            sortedDates.forEach(date => chartDataArray.push(dailyData[date]));
 
             setPeriodEntries(allEntries);
             setChartData(chartDataArray);
@@ -120,15 +111,12 @@ export const Overview = () => {
                     totalCalories: acc.totalCalories + entry.calories,
                     totalProtein: acc.totalProtein + entry.protein,
                     totalCarbs: acc.totalCarbs + entry.carbs,
-                    totalFat: acc.totalFat + entry.fat,
+                    totalFat: acc.totalFat + entry.fat
                 }),
                 { totalCalories: 0, totalProtein: 0, totalCarbs: 0, totalFat: 0 }
             );
 
-
-            const daysInRange = Math.ceil((new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24)) + 1;
             const daysWithEntries = daysWithData.size;
-
 
             setPeriodStats({
                 ...totals,
@@ -137,7 +125,8 @@ export const Overview = () => {
                 avgCarbs: daysWithEntries > 0 ? Math.round(totals.totalCarbs / daysWithEntries) : 0,
                 avgFat: daysWithEntries > 0 ? Math.round(totals.totalFat / daysWithEntries) : 0,
                 daysWithEntries,
-                daysInRange
+                daysInRange:
+                    Math.ceil((new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24)) + 1
             });
         };
 
@@ -146,8 +135,8 @@ export const Overview = () => {
 
     return (
         <div className="overview-page">
-            <h1>Nutrition Overview</h1>
-            <p>View your nutrition trends over time</p>
+            <h1>Overzicht</h1>
+            <p>Inzicht in je voedingspatroon over tijd</p>
 
             <div className="date-controls-container">
                 <DateRangeSelector
@@ -157,108 +146,67 @@ export const Overview = () => {
                 />
 
                 <div className="preset-buttons">
-                    <Button variant="outline" onClick={handleViewLastWeek}>Last 7 Days</Button>
-                    <Button variant="outline" onClick={handleViewLastMonth}>Last 30 Days</Button>
+                    <Button variant="outline" onClick={handleViewLastWeek}>
+                        Laatste 7 dagen
+                    </Button>
+                    <Button variant="outline" onClick={handleViewLastMonth}>
+                        Laatste 30 dagen
+                    </Button>
                 </div>
             </div>
 
             <div className="stats-section">
-                <h2>Daily Averages</h2>
-                <p className="stats-subtitle">Based on {periodStats.daysWithEntries} days with entries</p>
+                <h2>Gemiddeld per dag</h2>
+                <p className="stats-subtitle">
+                    Gebaseerd op {periodStats.daysWithEntries} geregistreerde dag{periodStats.daysWithEntries !== 1 ? 'en' : ''}
+                </p>
 
                 <div className="stats-grid">
-                    <StatCard
-                        title="Avg. Calories"
-                        value={periodStats.avgCalories}
-                        unit="kcal"
-                        icon={<Flame />}
-                        color="primary"
-                    />
-                    <StatCard
-                        title="Avg. Protein"
-                        value={periodStats.avgProtein}
-                        unit="g"
-                        icon={<Beef />}
-                        color="success"
-                    />
-                    <StatCard
-                        title="Avg. Carbs"
-                        value={periodStats.avgCarbs}
-                        unit="g"
-                        icon={<Pizza />}
-                        color="warning"
-                    />
-                    <StatCard
-                        title="Avg. Fat"
-                        value={periodStats.avgFat}
-                        unit="g"
-                        icon={<Droplet />}
-                        color="danger"
-                    />
+                    <StatCard title="Calorieën" value={periodStats.avgCalories} unit="kcal" icon={<Flame />} color="primary" />
+                    <StatCard title="Eiwitten" value={periodStats.avgProtein} unit="g" icon={<Beef />} color="success" />
+                    <StatCard title="Koolhydraten" value={periodStats.avgCarbs} unit="g" icon={<Pizza />} color="warning" />
+                    <StatCard title="Vetten" value={periodStats.avgFat} unit="g" icon={<Droplet />} color="danger" />
                 </div>
             </div>
 
             <div className="stats-section">
-                <h2>Period Totals</h2>
-                <p className="stats-subtitle">Total consumption for the selected period</p>
+                <h2>Totaal deze periode</h2>
+                <p className="stats-subtitle">Alles bij elkaar voor de geselecteerde periode</p>
 
                 <div className="stats-grid">
-                    <StatCard
-                        title="Total Calories"
-                        value={periodStats.totalCalories}
-                        unit="kcal"
-                        icon={<Flame />}
-                        color="primary"
-                    />
-                    <StatCard
-                        title="Total Protein"
-                        value={periodStats.totalProtein}
-                        unit="g"
-                        icon={<Beef />}
-                        color="success"
-                    />
-                    <StatCard
-                        title="Total Carbs"
-                        value={periodStats.totalCarbs}
-                        unit="g"
-                        icon={<Pizza />}
-                        color="warning"
-                    />
-                    <StatCard
-                        title="Total Fat"
-                        value={periodStats.totalFat}
-                        unit="g"
-                        icon={<Droplet />}
-                        color="danger"
-                    />
+                    <StatCard title="Calorieën" value={periodStats.totalCalories} unit="kcal" icon={<Flame />} color="primary" />
+                    <StatCard title="Eiwitten" value={periodStats.totalProtein} unit="g" icon={<Beef />} color="success" />
+                    <StatCard title="Koolhydraten" value={periodStats.totalCarbs} unit="g" icon={<Pizza />} color="warning" />
+                    <StatCard title="Vetten" value={periodStats.totalFat} unit="g" icon={<Droplet />} color="danger" />
                 </div>
             </div>
 
             <Card className="nutrition-trends">
-                <h2 className="card-title">Nutrition Trends</h2>
-                <p className="card-description">
-                    Daily nutrition values for the selected period.
-                </p>
+                <h2 className="card-title">Trends in voeding</h2>
+                <p className="card-description">Dagelijkse inname per categorie</p>
 
                 {chartData.length > 0 ? (
                     <div className="chart-container">
                         <ResponsiveContainer width="100%" height={400}>
-                            <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                            <LineChart
+                                data={chartData}
+                                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                            >
                                 <CartesianGrid strokeDasharray="3 3" />
                                 <XAxis dataKey="date" />
                                 <YAxis />
                                 <Tooltip />
                                 <Legend />
-                                <Line type="monotone" dataKey="calories" name="Calories" stroke="#3b82f6" activeDot={{ r: 8 }} />
-                                <Line type="monotone" dataKey="protein" name="Protein (g)" stroke="#22c55e" />
-                                <Line type="monotone" dataKey="carbs" name="Carbs (g)" stroke="#f59e0b" />
-                                <Line type="monotone" dataKey="fat" name="Fat (g)" stroke="#ef4444" />
+                                <Line type="monotone" dataKey="calories" name="Calorieën" stroke="#E84A7F" activeDot={{ r: 8 }} />
+                                <Line type="monotone" dataKey="protein" name="Eiwitten (g)" stroke="#22c55e" />
+                                <Line type="monotone" dataKey="carbs" name="Koolhydraten (g)" stroke="#f59e0b" />
+                                <Line type="monotone" dataKey="fat" name="Vetten (g)" stroke="#ef4444" />
                             </LineChart>
                         </ResponsiveContainer>
                     </div>
                 ) : (
                     <div className="chart-placeholder">
-                        No data available for the selected period.
+                        Nog geen gegevens voor deze periode — begin met loggen!
                     </div>
                 )}
             </Card>
