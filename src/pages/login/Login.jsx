@@ -9,21 +9,22 @@ import {Button} from "../../components/UI/button/Button.jsx";
 import {Navigate, useNavigate} from "react-router-dom";
 
 
-export const Login = () => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
+const Login = () => {
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
     const { login } = useAuth();
-
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setError("");
+
         try {
-            await login(email, password);
-            navigate('/');
+            await login(username, password);
+            navigate("/");
         } catch (err) {
-            setError('Invalid credentials');
+            setError("Ongeldige inloggegevens. Probeer het opnieuw.");
         }
     };
 
@@ -34,50 +35,59 @@ export const Login = () => {
                     <div className="logo-container">
                         <BarChart4 className="logo" />
                     </div>
-                    <h2 className="card-title">Calorie Tracker</h2>
+                    <h2 className="card-title">Welkom terug 👋</h2>
                     <p className="card-description">
-                        Enter your credentials to access your account
+                        Log in en houd je voeding moeiteloos bij – elke dag opnieuw.
                     </p>
                 </div>
+
                 <div className="card-content">
                     <form onSubmit={handleSubmit} className="login-form">
-                        {error && (
-                            <div className="error-message">
-                                {error}
-                            </div>
-                        )}
+                        {error && <div className="error-message">{error}</div>}
+
                         <div className="form-group">
-                            <Label htmlFor="email">Email</Label>
+                            <Label htmlFor="username">Gebruikersnaam of e-mail</Label>
                             <Input
-                                id="email"
-                                type="email"
-                                placeholder="name@example.com"
+                                id="username"
+                                type="text"
+                                placeholder="bijv. foodie123"
+                                value={username}
+                                onChange={(e) => setUsername(e.target.value)}
+                                autoFocus
                                 required
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
                             />
                         </div>
+
                         <div className="form-group">
-                            <Label htmlFor="password">Password</Label>
+                            <Label htmlFor="password">Wachtwoord</Label>
                             <Input
                                 id="password"
                                 type="password"
-                                required
+                                placeholder="••••••••"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
+                                required
                             />
                         </div>
-                        <Button type="submit" className="login-button">
-                            Sign in
+
+                        <Button
+                            type="submit"
+                            className="login-button"
+                            disabled={!username || !password}
+                        >
+                            Inloggen
                         </Button>
                     </form>
                 </div>
+
                 <div className="card-footer">
                     <p>
-                        Demo credentials: any email with password "password"
+                        Proberen zonder account? Gebruik een willekeurige gebruikersnaam en het wachtwoord <strong>"password"</strong>.
                     </p>
                 </div>
             </Card>
         </div>
     );
 };
+
+export default Login;

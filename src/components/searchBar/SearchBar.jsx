@@ -11,21 +11,31 @@ export const SearchBar = ({ query, onChange, onSearch, isLoading }) => {
     };
 
     return (
-        <form onSubmit={handleSubmit} className="search-form">
-            <Input
-                type="text"
-                placeholder="Search for recipes..."
-                value={query}
-                onChange={(e) => onChange(e.target.value)}
-            />
-            <Button type="submit" disabled={isLoading}>
-                {isLoading ? 'Searching...' : (
-                    <>
-                        <Search className="icon" />
-                        Search
-                    </>
-                )}
-            </Button>
+        <form onSubmit={handleSubmit} className="search-bar-form">
+            <div className="search-bar-wrapper">
+                <input
+                    type="text"
+                    className="search-input"
+                    placeholder="Waar heb je trek in vandaag? ✨"
+                    value={query}
+                    onChange={(e) => onChange(e.target.value)}
+                />
+
+                <Button
+                    type="submit"
+                    disabled={isLoading}
+                    className="search-button"
+                >
+                    {isLoading ? (
+                        'Zoeken...'
+                    ) : (
+                        <>
+                            Zoeken
+                            <Search className="icon" size={16} />
+                        </>
+                    )}
+                </Button>
+            </div>
         </form>
     );
 };

@@ -5,6 +5,7 @@ import axios from "axios";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle} from "../UI/dialog/Dialog.jsx";
 import {Label} from "../UI/label/Label.jsx";
 import { useToast} from "../UI/toast/Toast.jsx";
+import "./FoodEntryForm.css";
 
 export const FoodEntryForm = ({ isOpen, onClose, onAddEntry }) => {
     const [name, setName] = useState('');
@@ -15,7 +16,6 @@ export const FoodEntryForm = ({ isOpen, onClose, onAddEntry }) => {
     const fetchNutritionData = async (name, quantity, unit) => {
         const appId = import.meta.env.VITE_EDAMAM_APP_ID;
         const appKey = import.meta.env.VITE_EDAMAM_APP_KEY;
-        //const accountUser = import.meta.env.VITE_EDAMAM_ACCOUNT_USER;
 
         const query = `${quantity}${unit} ${name}`;
 
@@ -23,13 +23,13 @@ export const FoodEntryForm = ({ isOpen, onClose, onAddEntry }) => {
             const response = await axios.get(
                 `https://api.edamam.com/api/nutrition-data`,
                 {
-                    params: { app_id: appId,
-                              app_key: appKey,
-                              ingr:  query,
+                    params: {
+                        app_id: appId,
+                        app_key: appKey,
+                        ingr: query,
                     },
                     headers: {
-                        'Accept': "application/json",
-                      //  'Edamam-Account-User': accountUser,
+                        Accept: "application/json",
                     },
                 }
             );
@@ -48,7 +48,6 @@ export const FoodEntryForm = ({ isOpen, onClose, onAddEntry }) => {
         }
     };
 
-
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -63,7 +62,7 @@ export const FoodEntryForm = ({ isOpen, onClose, onAddEntry }) => {
 
         toast({
             title: "Voedsel toegevoegd",
-            description: `${name} (${quantity}${unit}) is toegevoegd aan je log.`,
+            description: `${name} (${quantity}${unit}) is toegevoegd aan je dagboek.`,
             variant: "success",
         });
     };
@@ -72,27 +71,26 @@ export const FoodEntryForm = ({ isOpen, onClose, onAddEntry }) => {
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>Add Food Entry</DialogTitle>
+                    <DialogTitle>Voeg iets lekkers toe</DialogTitle>
                     <DialogDescription>
-                        Enter the food details below to add a new entry to your log.
+                        Wat komt er op je bord? Vul hieronder de details in en we doen de rest.
                     </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmit}>
                     <div className="form-grid">
                         <div className="form-group">
-                            <Label htmlFor="name">Food Name</Label>
+                            <Label htmlFor="name">Wat heb je gegeten?</Label>
                             <Input
                                 id="name"
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
-                                placeholder="e.g. Chicken Breast"
+                                placeholder="bijv. Avocado, volkoren brood..."
                                 list="food-suggestions"
                                 required
                             />
-
                         </div>
                         <div className="form-group">
-                            <Label htmlFor="quantity">Quantity (in grams)</Label>
+                            <Label htmlFor="quantity">Hoeveelheid (in gram)</Label>
                             <Input
                                 id="quantity"
                                 type="number"
@@ -106,9 +104,9 @@ export const FoodEntryForm = ({ isOpen, onClose, onAddEntry }) => {
                     </div>
                     <DialogFooter>
                         <Button type="button" variant="outline" onClick={onClose}>
-                            Cancel
+                            Annuleren
                         </Button>
-                        <Button type="submit">Add Entry</Button>
+                        <Button type="submit">Toevoegen</Button>
                     </DialogFooter>
                 </form>
             </DialogContent>

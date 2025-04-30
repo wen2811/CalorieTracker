@@ -4,16 +4,18 @@
     width: 100%;
     border-radius: var(--radius);
     border: 1px solid var(--border);
-    background-color: var(--background);
+    background-color: var(--input);
     padding: 0.5rem 0.75rem;
     font-size: 0.875rem;
     transition: all 0.2s;
+    color: var(--foreground);
 }
 
 .input:focus {
     outline: none;
     border-color: var(--ring);
-    box-shadow: 0 0 0 2px hsla(221.2, 83.2%, 53.3%, 0.2);
+    box-shadow: 0 0 0 2px rgba(0, 102, 238, 0.15);
+    background-color: var(--card);
 }
 
 .input::placeholder {
@@ -23,4 +25,52 @@
 .input:disabled {
     cursor: not-allowed;
     opacity: 0.5;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.input-addon {
+    display: flex;
+    align-items: center;
+}
+
+.input-addon .input {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.input-addon-text {
+    display: flex;
+    align-items: center;
+    padding: 0 0.75rem;
+    background-color: var(--muted);
+    border: 1px solid var(--border);
+    border-left: none;
+    border-top-right-radius: var(--radius);
+    border-bottom-right-radius: var(--radius);
+    height: 2.5rem;
+    font-size: 0.875rem;
+    color: var(--muted-foreground);
+}
+
+.input-icon {
+    position: relative;
+}
+
+.input-icon .input {
+    padding-left: 2.5rem;
+}
+
+.input-icon-left {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted-foreground);
+    pointer-events: none;
 }

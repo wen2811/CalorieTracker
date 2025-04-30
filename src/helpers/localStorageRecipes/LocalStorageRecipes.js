@@ -1,3 +1,13 @@
+/**
+ * Slaat een recept op in localStorage voor een specifieke gebruiker
+ *
+ * Deze functie controleert eerst of een recept al bestaat (op basis van titel)
+ * om duplicaten te voorkomen, en genereert een uniek ID indien nodig.
+ *
+ * @param {string} userId - ID van de gebruiker waarvoor het recept wordt opgeslagen
+ * @param {Object} recipe - Het receptobject om op te slaan
+ * @returns {boolean} - True als het recept is opgeslagen, false als het al bestond
+ */
 
 export const getSavedRecipes = (userId) => {
     try {
@@ -7,7 +17,6 @@ export const getSavedRecipes = (userId) => {
         }
 
         const stored = localStorage.getItem(`savedRecipes-${userId}`);
-        console.log(`Getting saved recipes for user ${userId}:`, stored);
         return stored ? JSON.parse(stored) : [];
     } catch (error) {
         console.error("Error getting saved recipes:", error);
@@ -22,7 +31,7 @@ export const saveRecipe = (userId, recipe) => {
             return false;
         }
 
-
+        // Genereer een uniek ID als het recept er nog geen heeft
         if (!recipe.id) {
             recipe.id = `recipe-${Date.now()}`;
         }
@@ -33,9 +42,6 @@ export const saveRecipe = (userId, recipe) => {
 
         const updated = [...saved, recipe];
         localStorage.setItem(`savedRecipes-${userId}`, JSON.stringify(updated));
-
-        console.log(`Recipe saved for user ${userId}:`, recipe);
-        console.log("Current saved recipes:", updated);
 
         return true;
     } catch (error) {
@@ -55,7 +61,6 @@ export const deleteSavedRecipe = (userId, recipeId) => {
         const updated = saved.filter((r) => r.id !== recipeId);
         localStorage.setItem(`savedRecipes-${userId}`, JSON.stringify(updated));
 
-        console.log(`Recipe ${recipeId} deleted for user ${userId}`);
 
         return true;
     } catch (error) {
@@ -65,43 +70,6 @@ export const deleteSavedRecipe = (userId, recipeId) => {
 };
 
 
-export const inspectLocalStorage = () => {
-    console.log('---- LocalStorage Contents ----');
-
-    console.log('Keys in localStorage:');
-    for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        console.log(`${i+1}. ${key}`);
-    }
-
-    console.log('\nSaved Recipes:');
-    for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key.startsWith('savedRecipes-')) {
-            try {
-                const value = JSON.parse(localStorage.getItem(key));
-                console.log(`${key}:`, value);
-            } catch (e) {
-                console.log(`${key}: [Error parsing]`, localStorage.getItem(key));
-            }
-        }
-    }
-
-    console.log('\nEntry Data:');
-    for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key.startsWith('entries-')) {
-            try {
-                const value = JSON.parse(localStorage.getItem(key));
-                console.log(`${key}:`, value);
-            } catch (e) {
-                console.log(`${key}: [Error parsing]`, localStorage.getItem(key));
-            }
-        }
-    }
-
-    console.log('-----------------------------');
-};
 
 
 

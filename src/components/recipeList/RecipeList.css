@@ -4,9 +4,19 @@
     gap: 1rem;
 }
 
-.recipe-card {
-    padding: 1.5rem;
+.recipe-item {
+    padding: 1.25rem;
+    border-radius: var(--radius);
+    background-color: var(--white);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border);
+    transition: all 0.2s ease;
 }
+
+.recipe-item:hover {
+    border-color: var(--pink);
+}
+
 
 .recipe-header {
     display: flex;

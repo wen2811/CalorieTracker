@@ -5,4 +5,31 @@
     margin-bottom: 0.5rem;
     display: block;
     color: var(--foreground);
+    transition: color 0.2s;
+}
+
+label:focus-within {
+    color: var(--primary);
+}
+
+.label-required::after {
+    content: "*";
+    color: var(--destructive);
+    margin-left: 0.25rem;
+}
+
+.form-group {
+    margin-bottom: 1.25rem;
+}
+
+.form-helper-text {
+    font-size: 0.75rem;
+    color: var(--muted-foreground);
+    margin-top: 0.25rem;
+}
+
+.form-error {
+    font-size: 0.75rem;
+    color: var(--destructive);
+    margin-top: 0.25rem;
 }

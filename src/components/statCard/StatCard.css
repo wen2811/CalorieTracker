@@ -11,9 +11,29 @@
     justify-content: center;
     width: 2.5rem;
     height: 2.5rem;
-    border-radius: 0.5rem;
-    background-color: rgba(59, 130, 246, 0.1);
-    color: #3b82f6;
+    border-radius: 50%;
+    background-color: var(--accent);
+    color: var(--pink);
+}
+
+.stat-icon-primary {
+    background-color: rgba(232, 74, 127, 0.12);
+    color: var(--pink);
+}
+
+.stat-icon-success {
+    background-color: rgba(34, 197, 94, 0.12);
+    color: var(--secondary);
+}
+
+.stat-icon-warning {
+    background-color: rgba(245, 158, 11, 0.12);
+    color: var(--warning);
+}
+
+.stat-icon-danger {
+    background-color: rgba(239, 68, 68, 0.12);
+    color: var(--destructive);
 }
 
 .stat-content {

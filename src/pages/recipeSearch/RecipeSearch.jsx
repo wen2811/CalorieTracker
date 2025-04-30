@@ -18,8 +18,6 @@ export const RecipeSearch = ({ reloadRecipes }) => {
     const [expandedRecipe, setExpandedRecipe] = useState(null);
 
     useEffect(() => {
-        console.log("RecipeSearch component mounted");
-        console.log("Current auth user in RecipeSearch:", user);
         inspectLocalStorage();
     }, []);
 
@@ -29,13 +27,12 @@ export const RecipeSearch = ({ reloadRecipes }) => {
         setIsLoading(true);
         try {
             const results = await searchRecipes(searchQuery);
-            console.log("Search results:", results);
             setSearchResults(results);
         } catch (error) {
-            console.error('Error searching recipes:', error);
+            console.error('Fout bij het zoeken naar recepten:', error);
             toast({
-                title: "Search error",
-                description: "There was a problem searching for recipes.",
+                title: "Oeps...",
+                description: "Er ging iets mis bij het ophalen van recepten. Probeer het straks nog eens.",
                 variant: "destructive"
             });
         } finally {
@@ -46,15 +43,12 @@ export const RecipeSearch = ({ reloadRecipes }) => {
     const handleSaveRecipe = (recipe) => {
         const userId = user?.id || "1";
 
-        console.log("Attempting to save recipe for user:", userId);
-        console.log("Recipe data:", recipe);
-
         const success = saveRecipe(userId, recipe);
 
         if (success) {
             toast({
-                title: "Food saved",
-                description: `${recipe.title} has been added to your collection.`,
+                title: "Toegevoegd aan je favorieten",
+                description: `${recipe.title} is opgeslagen in je collectie.`,
             });
 
             if (typeof reloadRecipes === 'function') {
@@ -62,8 +56,8 @@ export const RecipeSearch = ({ reloadRecipes }) => {
             }
         } else {
             toast({
-                title: "Already saved",
-                description: `${recipe.title} is already in your collection.`,
+                title: "Al opgeslagen",
+                description: `${recipe.title} stond al in je collectie.`,
             });
         }
     };
@@ -72,8 +66,8 @@ export const RecipeSearch = ({ reloadRecipes }) => {
         <div className="recipe-search">
             <Card className="search-card">
                 <div className="search-header">
-                    <h2>Food Search</h2>
-                    <p>Search for food or meals and save them to your collection</p>
+                    <h2>Zoek naar iets lekkers</h2>
+                    <p>Vind inspirerende gerechten en bewaar je favorieten</p>
                 </div>
 
                 <SearchBar
@@ -93,7 +87,7 @@ export const RecipeSearch = ({ reloadRecipes }) => {
                         />
                     ) : (
                         <div className="empty-state">
-                            <p>Search for foods to get started</p>
+                            <p>Waar heb je trek in vandaag?</p>
                         </div>
                     )}
                 </div>

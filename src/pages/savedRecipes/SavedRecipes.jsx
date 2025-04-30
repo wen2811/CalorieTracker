@@ -7,8 +7,9 @@ import {Input} from "../../components/UI/input/Input.jsx";
 import {Card} from "../../components/UI/card/Card.jsx";
 import {useAuth} from "../../context/authContext.jsx";
 import {Label} from "../../components/UI/label/Label.jsx";
-import {deleteSavedRecipe, getSavedRecipes, inspectLocalStorage} from "../../helpers/localStorageRecipes/LocalStorageRecipes.js";
+import {deleteSavedRecipe, getSavedRecipes} from "../../helpers/localStorageRecipes/LocalStorageRecipes.js";
 import { ChevronUp, ChevronDown, Trash2, Pencil } from 'lucide-react';
+import './SavedRecipes.css';
 
 export const SavedRecipes = ({ onAddRecipeToMeal, reloadRecipes }) => {
     const { user } = useAuth();
@@ -20,45 +21,25 @@ export const SavedRecipes = ({ onAddRecipeToMeal, reloadRecipes }) => {
     const [servings, setServings] = useState(1);
     const [refreshKey, setRefreshKey] = useState(0);
 
-    useEffect(() => {
-        console.log("SavedRecipes component mounted");
-        console.log("Current auth user in SavedRecipes:", user);
-        inspectLocalStorage();
-    }, []);
 
     useEffect(() => {
         const loadSavedRecipes = () => {
-            if (user && user.id) {
-                console.log("Loading saved recipes for user:", user.id);
-                const recipes = getSavedRecipes(user.id);
-                console.log("Loaded recipes:", recipes);
-                setSavedRecipes(recipes);
-            } else {
-                console.log("No user found when loading recipes");
-                // If no user, try default user ID
-                const recipes = getSavedRecipes("1");
-                console.log("Trying default user ID (1). Loaded recipes:", recipes);
-                setSavedRecipes(recipes);
-            }
+            const userId = user?.id || "1";
+            const recipes = getSavedRecipes(userId);
+            setSavedRecipes(recipes);
         };
 
         loadSavedRecipes();
     }, [user, refreshKey]);
 
-    const handleRefresh = () => {
-        console.log("Manual refresh triggered");
-        setRefreshKey(prevKey => prevKey + 1);
-    };
-
     const handleDeleteRecipe = (recipeId) => {
-        const userId = user?.id || "1"; // Fallback to default user ID
-
+        const userId = user?.id || "1";
         deleteSavedRecipe(userId, recipeId);
         setSavedRecipes(prev => prev.filter(recipe => recipe.id !== recipeId));
 
         toast({
-            title: "Recipe deleted",
-            description: "The recipe has been removed from your collection.",
+            title: "Recept verwijderd",
+            description: "Dit recept is niet langer in je collectie.",
         });
     };
 
@@ -70,17 +51,15 @@ export const SavedRecipes = ({ onAddRecipeToMeal, reloadRecipes }) => {
     const confirmAddToMeal = () => {
         if (selectedRecipe && onAddRecipeToMeal) {
             onAddRecipeToMeal(selectedRecipe, servings);
-
             toast({
-                title: "Recipe added to meal",
-                description: `${selectedRecipe.title} has been added to your daily log.`,
+                title: "Toegevoegd aan je dagboek",
+                description: `${selectedRecipe.title} is toegevoegd aan je maaltijd.`,
             });
-
             setSelectedRecipe(null);
-        } else if (!onAddRecipeToMeal) {
+        } else {
             toast({
-                title: "Function not available",
-                description: "The add to meal functionality is not available in this context.",
+                title: "Actie niet beschikbaar",
+                description: "Je kunt dit recept op dit moment niet toevoegen.",
                 variant: "destructive"
             });
             setSelectedRecipe(null);
@@ -91,50 +70,47 @@ export const SavedRecipes = ({ onAddRecipeToMeal, reloadRecipes }) => {
         const userId = user?.id || "1";
 
         if (editingRecipe) {
-            let updatedRecipe = {...editingRecipe};
-            if (updatedRecipe.unit === "serving" &&
-                (updatedRecipe.calories === 0 || !updatedRecipe.calories)) {
+            let updated = { ...editingRecipe };
 
-                updatedRecipe = {
-                    ...updatedRecipe,
-                    unit: "g",
-                    quantity: 100,
-                    };
+            if (updated.unit === "portie" && (!updated.calories || updated.calories === 0)) {
+                updated = { ...updated, unit: "g", quantity: 100 };
             }
 
-            const updated = savedRecipes.map((r) => r.id === updatedRecipe.id ? updatedRecipe : r);
-            localStorage.setItem(`savedRecipes-${userId}`, JSON.stringify(updated));
-            setSavedRecipes(updated);
+            const newList = savedRecipes.map(r =>
+                r.id === updated.id ? updated : r
+            );
+
+            localStorage.setItem(`savedRecipes-${userId}`, JSON.stringify(newList));
+            setSavedRecipes(newList);
             setEditingRecipe(null);
 
-            toast({ title: "Recipe updated", description: "The recipe has been updated." });
+            toast({
+                title: "Recept bijgewerkt",
+                description: "Je wijzigingen zijn opgeslagen.",
+            });
         }
     };
 
     const formatIngredients = (ingredients) => {
-        if (!ingredients) return <li className="ingredient-item">No ingredients listed</li>;
+        if (!ingredients) {
+            return <li className="ingredient-item">Geen ingrediënten opgegeven</li>;
+        }
 
-        return ingredients.split('|').map((ing, idx) =>
+        return ingredients.split("|").map((ing, idx) => (
             <li key={idx} className="ingredient-item">{ing.trim()}</li>
-        );
+        ));
     };
-
-    console.log("Rendering SavedRecipes with:", savedRecipes);
 
     return (
         <div className="saved-recipes">
+            <div className="saved-recipes-header">
+                <h1>Je Recepten</h1>
+                <p>Een overzicht van alles wat je hebt bewaard</p>
+            </div>
+
             <Card className="recipes-card">
-                <div className="recipes-header">
-                    <h2>Saved Recipes</h2>
-                    <p>Your collection of saved recipes</p>
-                </div>
-
-                <Button onClick={handleRefresh} variant="outline" className="w-full mb-4">
-                    Refresh Recipes
-                </Button>
-
                 <div className="recipes-list">
-                    {savedRecipes && savedRecipes.length > 0 ? (
+                    {savedRecipes.length > 0 ? (
                         savedRecipes.map((recipe) => (
                             <Card key={recipe.id} className="recipe-card">
                                 <div className="recipe-header">
@@ -143,27 +119,45 @@ export const SavedRecipes = ({ onAddRecipeToMeal, reloadRecipes }) => {
                                         variant="ghost"
                                         size="sm"
                                         onClick={() =>
-                                            setExpandedRecipe(expandedRecipe === recipe.id ? null : recipe.id)
+                                            setExpandedRecipe(
+                                                expandedRecipe === recipe.id ? null : recipe.id
+                                            )
                                         }
                                     >
-                                        {expandedRecipe === recipe.id ? <ChevronUp className="icon" /> : <ChevronDown className="icon" />}
+                                        {expandedRecipe === recipe.id ? (
+                                            <ChevronUp className="icon" />
+                                        ) : (
+                                            <ChevronDown className="icon" />
+                                        )}
                                     </Button>
                                 </div>
-                                <p className="recipe-servings">{recipe.servings} serving(s)</p>
+                                <p className="recipe-servings">{recipe.servings} portie(s)</p>
 
                                 {expandedRecipe === recipe.id && (
                                     <div className="recipe-details">
                                         <div className="ingredients">
-                                            <h4>Ingredients:</h4>
+                                            <h4>Ingrediënten</h4>
                                             <ul>{formatIngredients(recipe.ingredients)}</ul>
                                         </div>
                                         <div className="nutrition">
-                                            <h4>Nutrition (per serving):</h4>
+                                            <h4>Voedingswaarden (per portie)</h4>
                                             <div className="nutrition-grid">
-                                                <div className="nutrition-item"><span className="nutrition-label">Calories</span><span className="nutrition-value">{Math.round(recipe.calories)}</span></div>
-                                                <div className="nutrition-item"><span className="nutrition-label">Protein</span><span className="nutrition-value">{Math.round(recipe.protein)}g</span></div>
-                                                <div className="nutrition-item"><span className="nutrition-label">Carbs</span><span className="nutrition-value">{Math.round(recipe.carbs)}g</span></div>
-                                                <div className="nutrition-item"><span className="nutrition-label">Fat</span><span className="nutrition-value">{Math.round(recipe.fat)}g</span></div>
+                                                <div className="nutrition-item">
+                                                    <span className="nutrition-label">Calorieën</span>
+                                                    <span className="nutrition-value">{Math.round(recipe.calories)}</span>
+                                                </div>
+                                                <div className="nutrition-item">
+                                                    <span className="nutrition-label">Eiwitten</span>
+                                                    <span className="nutrition-value">{Math.round(recipe.protein)}g</span>
+                                                </div>
+                                                <div className="nutrition-item">
+                                                    <span className="nutrition-label">Koolhydraten</span>
+                                                    <span className="nutrition-value">{Math.round(recipe.carbs)}g</span>
+                                                </div>
+                                                <div className="nutrition-item">
+                                                    <span className="nutrition-label">Vetten</span>
+                                                    <span className="nutrition-value">{Math.round(recipe.fat)}g</span>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -171,84 +165,124 @@ export const SavedRecipes = ({ onAddRecipeToMeal, reloadRecipes }) => {
 
                                 <div className="recipe-footer">
                                     <Button variant="ghost" size="sm" onClick={() => handleDeleteRecipe(recipe.id)}>
-                                        <Trash2 className="icon" /> Delete
+                                        <Trash2 className="icon" /> Verwijder
                                     </Button>
                                     <Button variant="outline" size="sm" onClick={() => handleAddToMeal(recipe)}>
-                                        <PlusCircle className="icon" /> Add to Meal
+                                        <PlusCircle className="icon" /> Voeg toe aan maaltijd
                                     </Button>
-                                    <Button variant="ghost" size="sm" className="edit-button" onClick={() => setEditingRecipe(recipe)}>
-                                        <Pencil className="icon" /> Edit
+                                    <Button variant="ghost" size="sm" onClick={() => setEditingRecipe(recipe)}>
+                                        <Pencil className="icon" /> Bewerken
                                     </Button>
                                 </div>
                             </Card>
                         ))
                     ) : (
                         <div className="empty-state">
-                            <p>No saved recipes yet</p>
-                            <p>Search for recipes and save them to your collection</p>
+                            <p>Nog geen recepten opgeslagen</p>
+                            <p>Zoek iets lekkers en sla je favorieten op</p>
                         </div>
                     )}
                 </div>
             </Card>
 
-            {/* Add to Meal Dialog */}
-            <Dialog open={selectedRecipe !== null} onOpenChange={(open) => !open && setSelectedRecipe(null)}>
+            <Dialog open={!!selectedRecipe} onOpenChange={(open) => !open && setSelectedRecipe(null)}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>Add Recipe to Meal</DialogTitle>
-                        <DialogDescription>Specify how many servings you want to add to your daily log.</DialogDescription>
+                        <DialogTitle>Voeg toe aan je maaltijd</DialogTitle>
+                        <DialogDescription>Kies hoeveel porties je wilt loggen.</DialogDescription>
                     </DialogHeader>
                     {selectedRecipe && (
                         <div className="servings-form">
-                            <div className="recipe-info"><h3>{selectedRecipe.title}</h3><p>{selectedRecipe.servings} serving(s)</p></div>
+                            <div className="recipe-info">
+                                <h3>{selectedRecipe.title}</h3>
+                                <p>{selectedRecipe.servings} portie(s)</p>
+                            </div>
                             <div className="servings-input">
-                                <label htmlFor="servings">Number of Servings</label>
-                                <Input id="servings" type="number" min="0.25" step="0.25" value={servings} onChange={(e) => setServings(Number(e.target.value))} />
+                                <label htmlFor="servings">Aantal porties</label>
+                                <Input
+                                    id="servings"
+                                    type="number"
+                                    min="0.25"
+                                    step="0.25"
+                                    value={servings}
+                                    onChange={(e) => setServings(Number(e.target.value))}
+                                />
                             </div>
                             <div className="nutrition-preview">
-                                <h4>Nutrition (for {servings} serving{servings !== 1 ? 's' : ''}):</h4>
+                                <h4>Voedingswaarden ({servings} portie{servings !== 1 ? 's' : ''})</h4>
                                 <div className="nutrition-grid">
-                                    <div className="nutrition-item"><span className="nutrition-label">Calories</span><span className="nutrition-value">{Math.round(selectedRecipe.calories * servings)}</span></div>
-                                    <div className="nutrition-item"><span className="nutrition-label">Protein</span><span className="nutrition-value">{Math.round(selectedRecipe.protein * servings)}g</span></div>
-                                    <div className="nutrition-item"><span className="nutrition-label">Carbs</span><span className="nutrition-value">{Math.round(selectedRecipe.carbs * servings)}g</span></div>
-                                    <div className="nutrition-item"><span className="nutrition-label">Fat</span><span className="nutrition-value">{Math.round(selectedRecipe.fat * servings)}g</span></div>
+                                    <div className="nutrition-item">
+                                        <span className="nutrition-label">Calorieën</span>
+                                        <span className="nutrition-value">{Math.round(selectedRecipe.calories * servings)}</span>
+                                    </div>
+                                    <div className="nutrition-item">
+                                        <span className="nutrition-label">Eiwitten</span>
+                                        <span className="nutrition-value">{Math.round(selectedRecipe.protein * servings)}g</span>
+                                    </div>
+                                    <div className="nutrition-item">
+                                        <span className="nutrition-label">Koolhydraten</span>
+                                        <span className="nutrition-value">{Math.round(selectedRecipe.carbs * servings)}g</span>
+                                    </div>
+                                    <div className="nutrition-item">
+                                        <span className="nutrition-label">Vetten</span>
+                                        <span className="nutrition-value">{Math.round(selectedRecipe.fat * servings)}g</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     )}
                     <DialogFooter>
-                        <Button variant="outline" onClick={() => setSelectedRecipe(null)}>Cancel</Button>
-                        <Button onClick={confirmAddToMeal}>Add to Meal</Button>
+                        <Button variant="outline" onClick={() => setSelectedRecipe(null)}>Annuleer</Button>
+                        <Button onClick={confirmAddToMeal}>Toevoegen</Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
 
-            {/* Edit Recipe Dialog */}
-            <Dialog open={editingRecipe !== null} onOpenChange={(open) => !open && setEditingRecipe(null)}>
+            <Dialog open={!!editingRecipe} onOpenChange={(open) => !open && setEditingRecipe(null)}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>Edit Recipe</DialogTitle>
-                        <DialogDescription>Update title, ingredients or servings below.</DialogDescription>
+                        <DialogTitle>Recept bewerken</DialogTitle>
+                        <DialogDescription>Pas de titel, ingrediënten of porties aan.</DialogDescription>
                     </DialogHeader>
                     {editingRecipe && (
                         <div className="edit-recipe-form">
                             <div className="form-group">
-                                <Label htmlFor="edit-title">Title</Label>
-                                <Input id="edit-title" value={editingRecipe.title} onChange={(e) => setEditingRecipe({ ...editingRecipe, title: e.target.value })} />
+                                <Label htmlFor="edit-title">Titel</Label>
+                                <Input
+                                    id="edit-title"
+                                    value={editingRecipe.title}
+                                    onChange={(e) =>
+                                        setEditingRecipe({ ...editingRecipe, title: e.target.value })
+                                    }
+                                />
                             </div>
                             <div className="form-group">
-                                <Label htmlFor="edit-ingredients">Ingredients</Label>
-                                <textarea id="edit-ingredients" rows="4" value={editingRecipe.ingredients} onChange={(e) => setEditingRecipe({ ...editingRecipe, ingredients: e.target.value })} />
+                                <Label htmlFor="edit-ingredients">Ingrediënten</Label>
+                                <textarea
+                                    id="edit-ingredients"
+                                    rows="4"
+                                    value={editingRecipe.ingredients}
+                                    onChange={(e) =>
+                                        setEditingRecipe({ ...editingRecipe, ingredients: e.target.value })
+                                    }
+                                />
                             </div>
                             <div className="form-group">
-                                <Label htmlFor="edit-servings">Servings</Label>
-                                <Input id="edit-servings" type="text" value={editingRecipe.servings} onChange={(e) => setEditingRecipe({ ...editingRecipe, servings: e.target.value })} />
+                                <Label htmlFor="edit-servings">Porties</Label>
+                                <Input
+                                    id="edit-servings"
+                                    type="text"
+                                    value={editingRecipe.servings}
+                                    onChange={(e) =>
+                                        setEditingRecipe({ ...editingRecipe, servings: e.target.value })
+                                    }
+                                />
                             </div>
                         </div>
                     )}
                     <DialogFooter>
-                        <Button variant="outline" onClick={() => setEditingRecipe(null)}>Cancel</Button>
-                        <Button onClick={confirmEditRecipe}>Save Changes</Button>
+                        <Button variant="outline" onClick={() => setEditingRecipe(null)}>Annuleer</Button>
+                        <Button onClick={confirmEditRecipe}>Bewaar aanpassingen</Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>

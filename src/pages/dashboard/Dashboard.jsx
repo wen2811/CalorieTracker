@@ -9,7 +9,7 @@ import {SavedRecipes} from "../savedRecipes/SavedRecipes.jsx";
 import {Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle} from "../../components/UI/dialog/Dialog.jsx";
 import {Toaster, ToastProvider} from "../../components/UI/toast/Toast.jsx";
 import {RecipeSearch} from "../recipeSearch/RecipeSearch.jsx";
-import {inspectLocalStorage} from "../../helpers/localStorageRecipes/LocalStorageRecipes.js";
+
 
 const Dashboard = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -20,29 +20,16 @@ const Dashboard = () => {
     const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split("T")[0]);
     const [recipesReloadTrigger, setRecipesReloadTrigger] = useState(0);
 
-    useEffect(() => {
-        console.log("Dashboard component mounted");
-        inspectLocalStorage();
-    }, []);
 
     const loadEntries = () => {
         try {
-            console.log(`Loading entries for ${selectedDate}:`, localStorage.getItem(`entries-${selectedDate}`));
             const stored = localStorage.getItem(`entries-${selectedDate}`);
-
             if (stored) {
-                const parsed = JSON.parse(stored);
-                console.log("Parsed entries:", parsed);
-                setEntries(parsed);
+                setEntries(JSON.parse(stored));
             } else {
-                console.log("No entries found for date:", selectedDate);
                 setEntries([]);
             }
-
-            console.log("Entries loaded:", entries);
-            console.log("Selected date:", selectedDate);
-        } catch (error) {
-            console.error("Error loading entries:", error);
+        } catch {
             setEntries([]);
         }
     };
@@ -50,11 +37,6 @@ const Dashboard = () => {
     useEffect(() => {
         loadEntries();
     }, [selectedDate]);
-
-
-    useEffect(() => {
-        console.log("Entries updated:", entries);
-    }, [entries]);
 
     const handleAddEntry = (name, quantity, unit, macros) => {
         const entry = {
@@ -73,9 +55,9 @@ const Dashboard = () => {
     const handleAddRecipeToMeal = (recipe, servings) => {
         const entry = {
             id: `recipe-${Date.now()}`,
-            name: `${recipe.title} (Recipe)`,
+            name: `${recipe.title} (Recept)`,
             quantity: servings,
-            unit: 'serving',
+            unit: 'portie',
             calories: recipe.calories * servings,
             protein: recipe.protein * servings,
             carbs: recipe.carbs * servings,
@@ -95,11 +77,9 @@ const Dashboard = () => {
 
     const handleUpdateEntry = () => {
         if (!editingEntry) return;
-
         const updated = entries.map(entry =>
             entry.id === editingEntry.id ? editingEntry : entry
         );
-
         setEntries(updated);
         localStorage.setItem(`entries-${selectedDate}`, JSON.stringify(updated));
         setEditingEntry(null);
@@ -107,6 +87,15 @@ const Dashboard = () => {
 
     const reloadRecipes = () => {
         setRecipesReloadTrigger(prev => prev + 1);
+    };
+
+    // Create explicit handler functions for better debugging
+    const handleAddFood = () => {
+        setIsModalOpen(true);
+    };
+
+    const handleAddMeal = () => {
+        setIsMealModalOpen(true);
     };
 
     const dailyMacros = entries
@@ -121,26 +110,36 @@ const Dashboard = () => {
     return (
         <ToastProvider>
             <div className="dashboard-page">
-                <h1>Dashboard</h1>
-                <p>Welkom terug! Hier zie je jouw dagelijkse voeding en macro's.</p>
+                <h1>Jouw Dag in Balans</h1>
+                <p className="dashboard-subtitle">
+                    Een overzicht van wat je vandaag eet, telt én voelt.
+                </p>
 
                 <DailyControls
                     selectedDate={selectedDate}
                     onDateChange={setSelectedDate}
-                    onAddMeal={() => setIsMealModalOpen(true)}
-                    onAddFood={() => setIsModalOpen(true)}
+                    onAddMeal={handleAddMeal}
+                    onAddFood={handleAddFood}
                 />
 
-                <MacroSummary dailyMacros={dailyMacros} />
+                <section>
+                    <h2 className="section-header">Macro-overzicht</h2>
+                    <MacroSummary dailyMacros={dailyMacros} />
+                </section>
 
-                <FoodEntryList
-                    entries={entries}
-                    selectedDate={selectedDate}
-                    expandedEntry={expandedEntry}
-                    onExpandEntry={setExpandedEntry}
-                    onEditEntry={setEditingEntry}
-                    onDeleteEntry={(id) => handleDeleteEntry(id)}
-                />
+                <section>
+                    <h2 className="section-header">Voedingsinvoer</h2>
+                    <FoodEntryList
+                        entries={entries}
+                        selectedDate={selectedDate}
+                        expandedEntry={expandedEntry}
+                        onExpandEntry={setExpandedEntry}
+                        onEditEntry={setEditingEntry}
+                        onDeleteEntry={handleDeleteEntry}
+                        onAddMeal={handleAddMeal}
+                        onAddFood={handleAddFood}
+                    />
+                </section>
 
                 <FoodEntryForm
                     isOpen={isModalOpen}
@@ -153,17 +152,20 @@ const Dashboard = () => {
                     isOpen={editingEntry !== null}
                     onClose={() => setEditingEntry(null)}
                     onChange={setEditingEntry}
-                    onSave={() => handleUpdateEntry()}
+                    onSave={handleUpdateEntry}
                 />
 
-                <RecipeSearch reloadRecipes={reloadRecipes} />
+                <section>
+                    <h2 className="section-header">Recepten Zoeken</h2>
+                    <RecipeSearch reloadRecipes={reloadRecipes} />
+                </section>
 
                 <Dialog open={isMealModalOpen} onOpenChange={setIsMealModalOpen}>
                     <DialogContent>
                         <DialogHeader>
-                            <DialogTitle>Add Meal from Saved Recipes</DialogTitle>
+                            <DialogTitle>Een recept toevoegen aan je dag</DialogTitle>
                             <DialogDescription>
-                                Kies een recept om toe te voegen aan je logboek.
+                                Kies uit je opgeslagen recepten en voeg toe wat bij je past vandaag.
                             </DialogDescription>
                         </DialogHeader>
 
