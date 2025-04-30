@@ -1,0 +1,54 @@
+.stat-card {
+    display: flex;
+    align-items: center;
+    padding: 1.25rem;
+    gap: 1rem;
+}
+
+.stat-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background-color: var(--accent);
+    color: var(--pink);
+}
+
+.stat-icon-primary {
+    background-color: rgba(232, 74, 127, 0.12);
+    color: var(--pink);
+}
+
+.stat-icon-success {
+    background-color: rgba(34, 197, 94, 0.12);
+    color: var(--secondary);
+}
+
+.stat-icon-warning {
+    background-color: rgba(245, 158, 11, 0.12);
+    color: var(--warning);
+}
+
+.stat-icon-danger {
+    background-color: rgba(239, 68, 68, 0.12);
+    color: var(--destructive);
+}
+
+.stat-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: #64748b;
+    margin-top: 0.25rem;
+}

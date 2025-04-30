@@ -1,0 +1,76 @@
+.homepage {
+    position: relative;
+    min-height: 100vh;
+    width: 100%;
+    background-image: url('../../assets/BananaPink.jpg');
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 2rem;
+}
+
+.overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(2px);
+    z-index: 1;
+}
+
+.homepage-content {
+    position: relative;
+    z-index: 2;
+    background-color: rgba(255, 255, 255, 0.85);
+    padding: 3rem 2rem;
+    border-radius: 16px;
+    max-width: 600px;
+    width: 100%;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.logo-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.logo-icon {
+    color: #D65C7A;
+}
+
+.app-name {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #9d8189;
+}
+
+.homepage-text {
+    font-size: 1.25rem;
+    margin-bottom: 2rem;
+    color: #333;
+}
+
+.homepage-buttons {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+}
+
+.primary-action {
+    min-width: 140px;
+}
+
+.secondary-action {
+    min-width: 140px;
+    border-color: var(--pink);
+    color: var(--pink);
+}
+
+.secondary-action:hover {
+    background-color: #fef0f4;
+}
